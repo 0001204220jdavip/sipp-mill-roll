@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIPP | Mill Roll - Cadastro de Rolos</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 24px 14px 40px;
+            background: #f2f5f7;
+            color: #333;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .topo {
+            max-width: 980px;
+            margin: 0 auto 18px;
+            padding: 18px 24px;
+            background: #fff;
+            border-radius: 10px;
+            border-bottom: 5px solid #1688b9;
+            box-shadow: 0 3px 14px rgba(0,0,0,.08);
+            text-align: center;
+        }
+
+        .logo { width: 310px; max-width: 90%; height: auto; }
+        .topo p { margin: 8px 0 0; color: #555; font-size: 14px; }
+
+        .container {
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 26px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 3px 18px rgba(0,0,0,.09);
+        }
+
+        h1, h2 { color: #147eac; }
+        h1 { margin: 0 0 8px; font-size: 25px; }
+        h2 { margin: 0 0 18px; font-size: 21px; }
+        .introducao { margin: 0 0 24px; color: #60666b; line-height: 1.5; }
+
+        .aviso {
+            margin-bottom: 22px;
+            padding: 13px 15px;
+            background: #fff9d9;
+            border-left: 5px solid #f2d400;
+            border-radius: 5px;
+            color: #514b20;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .campo { margin-bottom: 2px; }
+        .campo.largo { grid-column: 1 / -1; }
+        label { display: block; margin-bottom: 6px; font-weight: bold; font-size: 14px; }
+        input, select {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #c9ced2;
+            border-radius: 6px;
+            background: #fff;
+            color: #333;
+            font-size: 14px;
+        }
+        input:focus, select:focus { outline: 2px solid #b6e2f3; border-color: #1688b9; }
+
+        button {
+            padding: 12px 16px;
+            border: 0;
+            border-radius: 6px;
+            background: #1688b9;
+            color: #fff;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:hover { background: #0d6f99; }
+        button.amarelo { background: #f0d500; color: #333; }
+        button.amarelo:hover { background: #dfc700; }
+        button.cinza { background: #59636a; }
+        button.cinza:hover { background: #414a50; }
+        button.vermelho { background: #a83a3a; }
+        button.vermelho:hover { background: #842d2d; }
+        .botao-principal { width: 100%; margin-top: 18px; }
+
+        #mensagem { min-height: 20px; margin: 14px 0 0; text-align: center; font-weight: bold; font-size: 14px; }
+
+        .painel { margin-top: 30px; padding-top: 24px; border-top: 1px solid #e0e5e8; }
+        .botoes-lista { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
+        .botoes-lista button { flex: 1; }
+        .item-rolo {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 14px;
+            margin: 9px 0;
+            border: 1px solid #dce2e6;
+            border-left: 4px solid #1688b9;
+            border-radius: 6px;
+        }
+        .item-rolo strong { color: #176f94; }
+        .item-rolo small { display: block; margin-top: 5px; color: #687078; }
+        .item-rolo button { flex-shrink: 0; }
+        .vazio { padding: 16px; color: #70777c; text-align: center; }
+
+        #areaEtiqueta {
+            display: none;
+            margin-top: 24px;
+            padding: 20px;
+            border: 2px dashed #cbd3d8;
+            border-radius: 8px;
+            text-align: center;
+        }
+        #areaEtiqueta h2 { margin-bottom: 8px; }
+        #qrcode { display: flex; justify-content: center; margin: 16px auto; min-height: 190px; }
+        #qrcode img, #qrcode canvas { margin: auto; max-width: 100%; }
+        .texto-qr { max-width: 600px; margin: 10px auto; font-size: 12px; color: #5c646a; line-height: 1.5; overflow-wrap: anywhere; }
+        #avisoQr { max-width: 650px; margin: 12px auto; padding: 10px; border-radius: 5px; background: #fff9d9; color: #514b20; font-size: 12px; line-height: 1.45; }
+
+        #detalhes { display: none; margin-top: 22px; padding: 18px; background: #f5f8fa; border-radius: 8px; }
+        #detalhes h2 { margin-bottom: 14px; }
+        .linha-detalhe { margin: 9px 0; line-height: 1.4; overflow-wrap: anywhere; }
+        .linha-detalhe strong { color: #176f94; }
+        .atualizacao { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; }
+        .atualizacao button { grid-column: 1 / -1; }
+        .rodape { margin: 24px 0 0; color: #7a8287; font-size: 12px; text-align: center; }
+
+        @media (max-width: 620px) {
+            body { padding: 12px 9px 25px; }
+            .topo { padding: 15px; }
+            .logo { width: 250px; }
+            .container { padding: 18px; }
+            .form-grid, .atualizacao { grid-template-columns: 1fr; }
+            .campo.largo, .atualizacao button { grid-column: auto; }
+            .item-rolo { align-items: stretch; flex-direction: column; }
+            .item-rolo button { width: 100%; }
+            .botoes-lista { flex-direction: column; }
+        }
+
+        @media print {
+            body { padding: 0; background: #fff; }
+            .topo, .container { box-shadow: none; }
+            .container { padding: 10px; }
+            .aviso, form, #mensagem, .painel, #detalhes, .rodape, #areaEtiqueta button { display: none !important; }
+            #areaEtiqueta { display: block !important; border: 0; }
+        }
+    </style>
+</head>
+<body>
+    <header class="topo">
+        <img class="logo" src="logo-mill-roll.png" alt="Mill Roll - Rolos Industriais">
+        <p>Sistema de Identificação e Acompanhamento de Rolos Industriais</p>
+    </header>
+
+    <main class="container">
+        <h1>Cadastrar Novo Rolo Industrial</h1>
+        <p class="introducao">Preencha as informações do produto para criar uma identificação. O QR Code levará os dados junto com ele, permitindo a consulta em outro aparelho.</p>
+
+        <div class="aviso">
+            <strong>Como funciona:</strong> os cadastros também ficam salvos neste navegador. Para abrir a ficha completa ao escanear o QR Code em outro celular ou computador, o site precisa estar publicado em um endereço da internet. Não é necessário banco de dados nem servidor próprio.
+        </div>
+
+        <form id="cadastroForm">
+            <div class="form-grid">
+                <div class="campo">
+                    <label for="codigo_patrimonio">Código de Patrimônio:</label>
+                    <input type="text" id="codigo_patrimonio" required maxlength="50" placeholder="Ex: ROLO-2026-01">
+                </div>
+                <div class="campo">
+                    <label for="cliente">Cliente:</label>
+                    <input type="text" id="cliente" required maxlength="70" placeholder="Ex: Açaria X">
+                </div>
+                <div class="campo">
+                    <label for="tipo_produto">Tipo de Produto:</label>
+                    <input type="text" id="tipo_produto" list="lista-produtos" required maxlength="90" placeholder="Digite ou selecione">
+                    <datalist id="lista-produtos"></datalist>
+                </div>
+                <div class="campo">
+                    <label for="numero_pedido">Número do Pedido:</label>
+                    <input type="text" id="numero_pedido" required maxlength="40" placeholder="Ex: PED-9921">
+                </div>
+                <div class="campo largo">
+                    <label for="servico_solicitado">Serviço Solicitado:</label>
+                    <input type="text" id="servico_solicitado" required maxlength="100" placeholder="Ex: Retífica e Balanceamento">
+                </div>
+                <div class="campo largo">
+                    <label for="localizacao">Localização Inicial:</label>
+                    <input type="text" id="localizacao" required maxlength="70" placeholder="Ex: Setor de Triagem">
+                </div>
+            </div>
+            <button class="botao-principal" type="submit">Cadastrar e Gerar QR Code</button>
+        </form>
+
+        <p id="mensagem" role="status" aria-live="polite"></p>
+
+        <section id="areaEtiqueta">
+            <h2>Etiqueta do Rolo</h2>
+            <div id="qrcode"></div>
+            <p><strong>Código:</strong> <span id="codigoEtiqueta"></span></p>
+            <p class="texto-qr" id="textoEtiqueta"></p>
+            <div id="avisoQr"></div>
+            <button type="button" class="amarelo" onclick="window.print()">Imprimir Etiqueta</button>
+        </section>
+
+        <section id="detalhes">
+            <h2>Detalhes do Rolo</h2>
+            <div id="informacoesRolo"></div>
+            <div class="atualizacao">
+                <div class="campo">
+                    <label for="novaSituacao">Nova situação:</label>
+                    <select id="novaSituacao">
+                        <option>Entrada / Inspeção</option>
+                        <option>Em Usinagem</option>
+                        <option>Em Balanceamento</option>
+                        <option>Aguardando Inspeção Final</option>
+                        <option>Pronto para Expedição</option>
+                        <option>Entregue ao Cliente</option>
+                    </select>
+                </div>
+                <div class="campo">
+                    <label for="novaLocalizacao">Nova localização:</label>
+                    <input type="text" id="novaLocalizacao" maxlength="70" placeholder="Ex: Galpão B">
+                </div>
+                <button type="button" onclick="atualizarRolo()">Salvar e Gerar QR Code Atualizado</button>
+            </div>
+        </section>
+
+        <section class="painel">
+            <h2>Rolos Cadastrados Neste Navegador</h2>
+            <div class="botoes-lista">
+                <button type="button" class="cinza" onclick="exportarDados()">Exportar para Excel (.xlsx)</button>
+                <button type="button" class="vermelho" onclick="apagarTodos()">Apagar todos os cadastros</button>
+            </div>
+            <div id="listaRolos"></div>
+        </section>
+
+        <p class="rodape">Mill Roll | Os cadastros locais são guardados neste navegador. A ficha do QR Code contém os dados no momento em que foi gerada.</p>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+    <script src="catalogo.js"></script>
+    <script>
+        // Endereco usado para abrir a pagina de consulta em outro aparelho.
+        // Quando o site estiver publicado, o endereco e identificado automaticamente.
+        // Se quiser definir manualmente, coloque aqui o endereco da pasta do projeto.
+        const ENDERECO_PUBLICO_DO_SITE = '';
+
+        const CHAVE_DADOS = 'sipp_mill_roll_cadastros';
+        let roloSelecionado = null;
+        const formulario = document.getElementById('cadastroForm');
+        const mensagem = document.getElementById('mensagem');
+
+        // Busca os cadastros que estao guardados neste navegador.
+        function obterRolos() {
+            const dados = localStorage.getItem(CHAVE_DADOS);
+            return dados ? JSON.parse(dados) : [];
+        }
+
+        // Guarda a lista de cadastros no navegador.
+        function salvarRolos(rolos) {
+            localStorage.setItem(CHAVE_DADOS, JSON.stringify(rolos));
+        }
+
+        // Coloca os produtos do catalogo como sugestoes no formulario.
+        function carregarCatalogo() {
+            const lista = document.getElementById('lista-produtos');
+            catalogoMillRoll.forEach(function (item) {
+                const opcao = document.createElement('option');
+                opcao.value = item.produto;
+                lista.appendChild(opcao);
+            });
+        }
+
+        // Ao escolher um produto, preenche o servico sugerido se o campo estiver vazio.
+        document.getElementById('tipo_produto').addEventListener('change', function () {
+            const tipo = document.getElementById('tipo_produto').value;
+            const item = catalogoMillRoll.find(function (produto) {
+                return produto.produto === tipo;
+            });
+            if (item && document.getElementById('servico_solicitado').value.trim() === '') {
+                document.getElementById('servico_solicitado').value = item.especificacao;
+            }
+        });
+
+        // Monta o endereco da pagina de consulta, levando os dados dentro do QR Code.
+        function montarLinkConsulta(rolo) {
+            let paginaConsulta = '';
+
+            if (ENDERECO_PUBLICO_DO_SITE !== '') {
+                paginaConsulta = ENDERECO_PUBLICO_DO_SITE;
+                if (paginaConsulta.charAt(paginaConsulta.length - 1) !== '/') {
+                    paginaConsulta += '/';
+                }
+                paginaConsulta += 'produto.html';
+            } else if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+                paginaConsulta = new URL('produto.html', window.location.href).href;
+            } else {
+                return '';
+            }
+
+            const campos = [
+                rolo.id,
+                rolo.codigo_patrimonio,
+                rolo.cliente,
+                rolo.tipo_produto,
+                rolo.numero_pedido,
+                rolo.servico_solicitado,
+                rolo.situacao,
+                rolo.localizacao,
+                rolo.data_entrada,
+                rolo.data_atualizacao
+            ];
+
+            const dados = campos.map(function (valor) {
+                return encodeURIComponent(String(valor));
+            }).join('|');
+
+            return paginaConsulta + '#dados=' + dados;
+        }
+
+        // Faz o QR Code. No site publicado, ele abre a ficha formatada em outro aparelho.
+        function gerarEtiqueta(rolo) {
+            const area = document.getElementById('areaEtiqueta');
+            const quadro = document.getElementById('qrcode');
+            const link = montarLinkConsulta(rolo);
+
+            quadro.innerHTML = '';
+            area.style.display = 'block';
+            document.getElementById('codigoEtiqueta').textContent = rolo.codigo_patrimonio;
+            document.getElementById('textoEtiqueta').textContent =
+                rolo.cliente + ' | ' + rolo.tipo_produto + ' | Pedido: ' + rolo.numero_pedido;
+
+            if (typeof QRCode === 'undefined') {
+                quadro.textContent = 'Nao foi possivel carregar o gerador de QR Code. Verifique a conexao com a internet.';
+                return;
+            }
+
+            if (link !== '') {
+                new QRCode(quadro, {
+                    text: link,
+                    width: 210,
+                    height: 210,
+                    colorDark: '#222222',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.M
+                });
+                document.getElementById('avisoQr').textContent =
+                    'Escaneie este codigo para abrir a ficha do produto. Os dados estao dentro do QR Code; nao e necessario acessar o cadastro salvo no navegador que criou a etiqueta.';
+            } else {
+                new QRCode(quadro, {
+                    text: montarTextoSimples(rolo),
+                    width: 210,
+                    height: 210,
+                    colorDark: '#222222',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.M
+                });
+                document.getElementById('avisoQr').textContent =
+                    'O projeto ainda esta aberto como arquivo neste computador. Neste modo, o QR Code mostra os dados em texto. Para abrir uma ficha formatada em outro aparelho, publique esta pasta em um endereco da internet (por exemplo, GitHub Pages). Nao precisa de banco de dados ou servidor proprio.';
+            }
+
+            area.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // Texto de apoio para o QR Code usado enquanto o projeto ainda esta no computador.
+        function montarTextoSimples(rolo) {
+            return [
+                'MILL ROLL - SIPP',
+                'Patrimonio: ' + rolo.codigo_patrimonio,
+                'Cliente: ' + rolo.cliente,
+                'Produto: ' + rolo.tipo_produto,
+                'Pedido: ' + rolo.numero_pedido,
+                'Servico: ' + rolo.servico_solicitado,
+                'Situacao: ' + rolo.situacao,
+                'Localizacao: ' + rolo.localizacao,
+                'Entrada: ' + rolo.data_entrada
+            ].join('\n');
+        }
+
+        // Recebe os dados do formulario e cria um novo cadastro.
+        formulario.addEventListener('submit', function (evento) {
+            evento.preventDefault();
+
+            const rolos = obterRolos();
+            const codigo = document.getElementById('codigo_patrimonio').value.trim();
+            const repetido = rolos.some(function (rolo) {
+                return rolo.codigo_patrimonio.toLowerCase() === codigo.toLowerCase();
+            });
+
+            if (repetido) {
+                mensagem.textContent = 'Ja existe um rolo com esse codigo de patrimonio.';
+                mensagem.style.color = '#b42318';
+                return;
+            }
+
+            const agora = new Date().toLocaleString('pt-BR');
+            const novoRolo = {
+                id: rolos.length === 0 ? 1 : Math.max.apply(null, rolos.map(function (rolo) { return Number(rolo.id); })) + 1,
+                codigo_patrimonio: codigo,
+                cliente: document.getElementById('cliente').value.trim(),
+                tipo_produto: document.getElementById('tipo_produto').value.trim(),
+                numero_pedido: document.getElementById('numero_pedido').value.trim(),
+                servico_solicitado: document.getElementById('servico_solicitado').value.trim(),
+                situacao: 'Entrada / Inspeção',
+                localizacao: document.getElementById('localizacao').value.trim(),
+                data_entrada: agora,
+                data_atualizacao: agora
+            };
+
+            rolos.push(novoRolo);
+            salvarRolos(rolos);
+            formulario.reset();
+            mensagem.textContent = 'Cadastro salvo neste navegador.';
+            mensagem.style.color = '#187642';
+            roloSelecionado = novoRolo.id;
+            mostrarRolos();
+            mostrarDetalhes(novoRolo.id);
+            gerarEtiqueta(novoRolo);
+        });
+
+        // Mostra a lista de rolos que foram cadastrados neste navegador.
+        function mostrarRolos() {
+            const lista = document.getElementById('listaRolos');
+            const rolos = obterRolos();
+            lista.innerHTML = '';
+
+            if (rolos.length === 0) {
+                lista.innerHTML = '<p class="vazio">Ainda nao ha rolos cadastrados neste navegador.</p>';
+                return;
+            }
+
+            rolos.slice().reverse().forEach(function (rolo) {
+                const item = document.createElement('div');
+                item.className = 'item-rolo';
+
+                const texto = document.createElement('div');
+                const titulo = document.createElement('strong');
+                titulo.textContent = rolo.codigo_patrimonio + ' - ' + rolo.cliente;
+                const detalhe = document.createElement('small');
+                detalhe.textContent = rolo.tipo_produto + ' | ' + rolo.situacao;
+                texto.appendChild(titulo);
+                texto.appendChild(detalhe);
+
+                const botao = document.createElement('button');
+                botao.type = 'button';
+                botao.textContent = 'Ver / Atualizar';
+                botao.addEventListener('click', function () {
+                    mostrarDetalhes(rolo.id);
+                    document.getElementById('detalhes').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                });
+
+                item.appendChild(texto);
+                item.appendChild(botao);
+                lista.appendChild(item);
+            });
+        }
+
+        // Exibe as informacoes de um rolo selecionado na lista local.
+        function mostrarDetalhes(id) {
+            const rolo = obterRolos().find(function (item) { return Number(item.id) === Number(id); });
+            if (!rolo) return;
+
+            roloSelecionado = rolo.id;
+            const campos = [
+                ['Codigo de Patrimonio', rolo.codigo_patrimonio],
+                ['Cliente', rolo.cliente],
+                ['Tipo de Produto', rolo.tipo_produto],
+                ['Numero do Pedido', rolo.numero_pedido],
+                ['Servico Solicitado', rolo.servico_solicitado],
+                ['Situacao', rolo.situacao],
+                ['Localizacao', rolo.localizacao],
+                ['Data de Entrada', rolo.data_entrada],
+                ['Ultima Atualizacao', rolo.data_atualizacao]
+            ];
+
+            const area = document.getElementById('informacoesRolo');
+            area.innerHTML = '';
+            campos.forEach(function (campo) {
+                const linha = document.createElement('p');
+                linha.className = 'linha-detalhe';
+                const nome = document.createElement('strong');
+                nome.textContent = campo[0] + ': ';
+                linha.appendChild(nome);
+                linha.appendChild(document.createTextNode(campo[1]));
+                area.appendChild(linha);
+            });
+
+            document.getElementById('novaSituacao').value = rolo.situacao;
+            document.getElementById('novaLocalizacao').value = rolo.localizacao;
+            document.getElementById('detalhes').style.display = 'block';
+        }
+
+        // Salva a nova situacao e localizacao e prepara outra etiqueta.
+        function atualizarRolo() {
+            if (roloSelecionado === null) return;
+
+            const rolos = obterRolos();
+            const indice = rolos.findIndex(function (rolo) { return Number(rolo.id) === Number(roloSelecionado); });
+            if (indice === -1) return;
+
+            rolos[indice].situacao = document.getElementById('novaSituacao').value;
+            const localizacao = document.getElementById('novaLocalizacao').value.trim();
+            if (localizacao !== '') rolos[indice].localizacao = localizacao;
+            rolos[indice].data_atualizacao = new Date().toLocaleString('pt-BR');
+
+            salvarRolos(rolos);
+            mensagem.textContent = 'Atualizacao salva. Gere e imprima a nova etiqueta para atualizar o QR Code.';
+            mensagem.style.color = '#187642';
+            mostrarRolos();
+            mostrarDetalhes(roloSelecionado);
+            gerarEtiqueta(rolos[indice]);
+        }
+
+        // Monta uma planilha Excel formatada com os cadastros deste navegador.
+        async function exportarDados() {
+            const rolos = obterRolos();
+            if (rolos.length === 0) {
+                alert('Nao ha cadastros para exportar.');
+                return;
+            }
+
+            // A biblioteca ExcelJS e carregada pela internet para criar o arquivo .xlsx.
+            if (typeof ExcelJS === 'undefined') {
+                alert('Nao foi possivel carregar o recurso de Excel. Verifique a conexao com a internet e tente novamente.');
+                return;
+            }
+
+            const workbook = new ExcelJS.Workbook();
+            workbook.creator = 'Sistema SIPP - Mill Roll';
+            workbook.subject = 'Relatorio de produtos cadastrados';
+            workbook.title = 'Relatorio SIPP - Mill Roll';
+            workbook.created = new Date();
+
+            const planilha = workbook.addWorksheet('Rolos cadastrados', {
+                views: [{ state: 'frozen', ySplit: 5 }]
+            });
+
+            // Largura das colunas para facilitar a leitura no Excel.
+            planilha.columns = [
+                { key: 'id', width: 9 },
+                { key: 'codigo_patrimonio', width: 21 },
+                { key: 'cliente', width: 25 },
+                { key: 'tipo_produto', width: 29 },
+                { key: 'numero_pedido', width: 18 },
+                { key: 'servico_solicitado', width: 32 },
+                { key: 'situacao', width: 25 },
+                { key: 'localizacao', width: 23 },
+                { key: 'data_entrada', width: 22 },
+                { key: 'data_atualizacao', width: 22 }
+            ];
+
+            // Titulo e informacoes do relatorio.
+            planilha.mergeCells('A1:J1');
+            planilha.getCell('A1').value = 'MILL ROLL | RELATORIO DE PRODUTOS CADASTRADOS';
+            planilha.getCell('A1').font = { name: 'Arial', size: 16, bold: true, color: { argb: 'FFFFFFFF' } };
+            planilha.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1688B9' } };
+            planilha.getCell('A1').alignment = { vertical: 'middle', horizontal: 'center' };
+            planilha.getRow(1).height = 32;
+
+            planilha.mergeCells('A2:J2');
+            planilha.getCell('A2').value = 'Sistema de Identificacao de Produtos e Propriedades dos Clientes - SIPP';
+            planilha.getCell('A2').font = { name: 'Arial', size: 10, italic: true, color: { argb: 'FF59636A' } };
+            planilha.getCell('A2').alignment = { vertical: 'middle', horizontal: 'center' };
+            planilha.getRow(2).height = 22;
+
+            planilha.mergeCells('A3:B3');
+            planilha.getCell('A3').value = 'TOTAL DE CADASTROS';
+            planilha.getCell('A3').font = { name: 'Arial', size: 10, bold: true, color: { argb: 'FF333333' } };
+            planilha.getCell('A3').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFF6B8' } };
+            planilha.getCell('A3').alignment = { vertical: 'middle', horizontal: 'center' };
+            planilha.mergeCells('C3:D3');
+            planilha.getCell('C3').value = rolos.length;
+            planilha.getCell('C3').font = { name: 'Arial', size: 12, bold: true, color: { argb: 'FF147EAC' } };
+            planilha.getCell('C3').alignment = { vertical: 'middle', horizontal: 'center' };
+            planilha.mergeCells('E3:J3');
+            planilha.getCell('E3').value = 'Exportado em: ' + new Date().toLocaleString('pt-BR');
+            planilha.getCell('E3').font = { name: 'Arial', size: 9, color: { argb: 'FF59636A' } };
+            planilha.getCell('E3').alignment = { vertical: 'middle', horizontal: 'right' };
+            planilha.getRow(3).height = 23;
+
+            const cabecalhos = [
+                'ID', 'Codigo de Patrimonio', 'Cliente', 'Tipo de Produto',
+                'Numero do Pedido', 'Servico Solicitado', 'Situacao',
+                'Localizacao', 'Data de Entrada', 'Ultima Atualizacao'
+            ];
+            const linhaCabecalho = planilha.getRow(5);
+            linhaCabecalho.values = cabecalhos;
+            linhaCabecalho.height = 30;
+            linhaCabecalho.eachCell(function (celula) {
+                celula.font = { name: 'Arial', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
+                celula.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF176F94' } };
+                celula.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+                celula.border = {
+                    top: { style: 'thin', color: { argb: 'FFFFFFFF' } },
+                    bottom: { style: 'medium', color: { argb: 'FFF2D400' } },
+                    left: { style: 'thin', color: { argb: 'FFFFFFFF' } },
+                    right: { style: 'thin', color: { argb: 'FFFFFFFF' } }
+                };
+            });
+
+            // Cada produto ocupa uma linha. Codigos e pedidos ficam como texto.
+            rolos.forEach(function (rolo, indice) {
+                const linha = planilha.addRow([
+                    rolo.id,
+                    rolo.codigo_patrimonio || '',
+                    rolo.cliente || '',
+                    rolo.tipo_produto || '',
+                    rolo.numero_pedido || '',
+                    rolo.servico_solicitado || '',
+                    rolo.situacao || '',
+                    rolo.localizacao || '',
+                    rolo.data_entrada || '',
+                    rolo.data_atualizacao || ''
+                ]);
+                linha.height = 24;
+                linha.eachCell(function (celula, numeroColuna) {
+                    celula.font = { name: 'Arial', size: 10, color: { argb: 'FF333333' } };
+                    celula.alignment = { vertical: 'middle', wrapText: true };
+                    celula.border = { bottom: { style: 'hair', color: { argb: 'FFD8E1E6' } } };
+                    if (indice % 2 === 1) {
+                        celula.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF0F7FA' } };
+                    }
+                    if (numeroColuna === 1) {
+                        celula.alignment = { vertical: 'middle', horizontal: 'center' };
+                    }
+                });
+                linha.getCell(2).numFmt = '@';
+                linha.getCell(5).numFmt = '@';
+            });
+
+            // Filtros no cabecalho e configuracao para impressao.
+            planilha.autoFilter = { from: 'A5', to: 'J' + (5 + rolos.length) };
+            planilha.pageSetup.orientation = 'landscape';
+            planilha.pageSetup.fitToPage = true;
+            planilha.pageSetup.fitToWidth = 1;
+            planilha.pageSetup.fitToHeight = 0;
+            planilha.pageSetup.margins = { left: 0.3, right: 0.3, top: 0.5, bottom: 0.5, header: 0.2, footer: 0.2 };
+            planilha.headerFooter.oddFooter = '&LMill Roll - SIPP&C&Pagina &P de &N';
+
+            try {
+                const conteudo = await workbook.xlsx.writeBuffer();
+                const arquivo = new Blob([conteudo], {
+                    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                });
+                const link = document.createElement('a');
+                const endereco = URL.createObjectURL(arquivo);
+                link.href = endereco;
+                link.download = 'relatorio_sipp_mill_roll.xlsx';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                setTimeout(function () { URL.revokeObjectURL(endereco); }, 1000);
+            } catch (erro) {
+                console.error(erro);
+                alert('Nao foi possivel criar a planilha Excel. Tente novamente.');
+            }
+        }
+
+        // Apaga os cadastros deste navegador depois de confirmar.
+        function apagarTodos() {
+            if (!confirm('Deseja apagar todos os cadastros deste navegador?')) return;
+            localStorage.removeItem(CHAVE_DADOS);
+            roloSelecionado = null;
+            document.getElementById('detalhes').style.display = 'none';
+            document.getElementById('areaEtiqueta').style.display = 'none';
+            mensagem.textContent = 'Os cadastros locais foram apagados.';
+            mensagem.style.color = '#187642';
+            mostrarRolos();
+        }
+
+        carregarCatalogo();
+        mostrarRolos();
+    </script>
+</body>
+</html>
